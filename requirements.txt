@@ -1,0 +1,37 @@
+pandas >= 1.2.2
+torch >= 1.9    # using torch.inference_mode()
+torchvision >= 0.8.2
+opencv-python >= 4.1
+albumentations >= 0.5.2
+matplotlib >= 3.3.4
+scikit-learn >= 0.24.1
+openslide-python >= 1.1.2
+segmentation_models_pytorch >= 0.2
+# monai
+#torch-optimizer >= 0.2
+tqdm
+munch >=1.16  # dict dot operator
+#pip install transformers  #hugging face Setformer
+
+
+ml_collections >= 0.1.1
+einops >= 0.6.0
+
+self-attention-cv >= 1.2.3  # https://github.com/The-AI-Summer/self-attention-cv
+
+#conda create -n pytorch113 python=3.8
+#conda install pytorch torchvision torchaudio pytorch-cuda=11.6 -c pytorch -c nvidia
+
+# pip install -i https://mirrors.aliyun.com/pypi/simple/ scikit-learn albumentations  scikit-image ml_collections einops
+# pip install git+https://github.com/qubvel/segmentation_models.pytorch cupy-cuda116 transformers
+
+
+#pip install -i https://mirrors.aliyun.com/pypi/simple/   torch torchvision
+# pip install medcam
+# pip install -i https://mirrors.aliyun.com/pypi/simple/ captum pandas scikit-learn mysqlclient openpyxl xlwt  pydicom SimpleITK matplotlib  seaborn imgaug  albumentations  torchio captum pretrainedmodels tensorboard flask biopython python-docx
+# pip install torch_optimizer timm
+#pip install imagecodecs  opencv-python
+
+
+
+

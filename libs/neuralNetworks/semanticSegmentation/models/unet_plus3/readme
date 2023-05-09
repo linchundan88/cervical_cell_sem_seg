@@ -1,0 +1,8 @@
+
+u-net +++
+https://github.com/ZJUGiveLab/UNet-Version
+
+remove the last sigmoid activation function.
+
+
+ nn.Conv2d(filters[0], n_classes, kernel_size=1, padding=1)  # original: nn.Conv2d(filters[0], 1, 3, padding=1)

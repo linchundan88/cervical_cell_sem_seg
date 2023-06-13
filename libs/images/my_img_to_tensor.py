@@ -21,10 +21,14 @@ def img_to_tensor(img_file, image_shape=None, transform=None):
     #     image = cv2.resize(image, (self.image_shape[1], self.image_shape[0]))
 
     list_transform = []
+    # if transform is not None:
+    #     list_transform.extend(transform.transforms)
     if transform is not None:
         list_transform.append(transform)
-    if image_shape is not None:
+    elif image_shape is not None:
         list_transform.append(A.Resize(height=image_shape[0], width=image_shape[1]))
+    else:
+        list_transform.append(A.NoOp)
 
     transform1 = A.Compose(list_transform)
     image = transform1(image=image)['image']

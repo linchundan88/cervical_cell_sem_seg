@@ -8,7 +8,7 @@ do
 done
 
 
- base model
+# base model
 for encoder_weights in "imagenet" "none"
 do
   for task_type in "cyto_ins" "nuc_ins"
@@ -22,7 +22,7 @@ do
   done
 done
 
- transformer based models only have cyto_ins models.
+# transformer based models only have cyto_ins models.
 for model_type in "Transunet" "Segformer"
 do
   echo "task_type:cyto_ins, model_type: ${model_type}, encoder_weights:none"

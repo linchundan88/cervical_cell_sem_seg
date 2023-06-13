@@ -18,11 +18,10 @@ from tqdm import tqdm
 import time
 from torch.cuda.amp import autocast
 import gc
-import shutil
 from libs.images.my_img import remove_small_object
 
 
-
+@torch.inference_mode()
 def predict_single_model(model, data_loader, use_amp, mode='DP', sync_bn=False, scale_ratio=1):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if torch.cuda.device_count() > 0:
@@ -35,28 +34,26 @@ def predict_single_model(model, data_loader, use_amp, mode='DP', sync_bn=False, 
 
     model.eval()
 
-    with torch.inference_mode():  # better than torch.no_grad  using pytorch>1.9 disabling view tracking and version counter bumps.”
-        list_outputs = []
-        for batch_idx, inputs in enumerate(tqdm(data_loader)):
-            if isinstance(inputs, list):  # both images and masks
-                inputs, masks = inputs
-            inputs = inputs.to(device)
-            with autocast(enabled=use_amp):
-                outputs = model(inputs)  #B,C,H,W
-                outputs = torch.sigmoid(outputs)
+    list_outputs = []
+    for batch_idx, inputs in enumerate(tqdm(data_loader)):
+        if isinstance(inputs, list):  # both images and masks
+            inputs, masks = inputs
+        inputs = inputs.to(device)
+        with autocast(enabled=use_amp):
+            outputs = model(inputs)  #B,C,H,W
+            outputs = torch.sigmoid(outputs)
 
-            outputs = outputs.cpu().numpy()  # B, C, H, W
-            outputs = outputs.astype(np.float16)
+        outputs = outputs.cpu().numpy().astype(np.float16)  # B, C, H, W
+        assert scale_ratio in [1/8, 1/4, 1/2, 1], f'scale ratio:{scale_ratio} error!'
+        if scale_ratio != 1:   #for big WSI, predicted results can not fit into memory.
+            slice_index = int(1 // scale_ratio)
+            outputs = outputs[:, :, ::slice_index, ::slice_index]
+        list_outputs.append(outputs)
 
-            if scale_ratio != 1:   #for big WSI, predicted results can not fit into memory.
-                slice_index = int(1 // scale_ratio)
-                outputs = outputs[:, :, ::slice_index, ::slice_index]
-
-            list_outputs.append(outputs)
-
-        outputs = np.vstack(list_outputs)  # Equivalent to np.concatenate(list_outputs, axis=0)
+    outputs = np.vstack(list_outputs)  # Equivalent to np.concatenate(list_outputs, axis=0)
 
     return outputs
+
 
 #multi models using the different data loaders image sizes
 def predict_multi_models(model_dicts, data_loaders, use_cupy=False, mode='DP', sync_bn=False, scale_ratio=1):
@@ -137,7 +134,7 @@ def predict_one_file(img_file, model_dicts, save_file=None, model_convert_gpu=Tr
         pred_mask = ensemble_outputs[0, 0, :, :]  # (N,C,H,W)
         _, img_thres = cv2.threshold(pred_mask, 0.5, 255, cv2.THRESH_BINARY)
         if remove_small_object is not None:
-            img_thres = remove_small_object(img_thres)
+            img_thres = remove_small_object(img_thres, small_object_threshold)
 
         cv2.imwrite(save_file, img_thres)
 

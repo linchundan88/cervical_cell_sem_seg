@@ -21,7 +21,6 @@ import torch
 
 # task_type:cyto_ins, model_type: Unet_resnet34, encoder_weights:none
 csv_test = Path(__file__).resolve().parent / 'datafiles' / f'{args.task_type}' / 'test.csv'
-
 patch_h, patch_w = (512, 512)
 
 if args.encoder_weights == 'imagenet':
@@ -162,18 +161,17 @@ elif args.encoder_weights.strip() == '' or args.encoder_weights.strip() == 'none
             state_dict = torch.load(model_file1, map_location='cpu')
             model1.load_state_dict(state_dict)
 
-
 model_dict1 = dict(model=model1, use_amp=True, model_weight=1, image_shape=(patch_h, patch_w), batch_size=64)
 model_dicts.append(model_dict1)
 
 
 data_loaders = []
 model_dict = model_dicts[0]
-ds_test = Dataset_SEM_SEG(csv_file=csv_test, image_shape=model_dict['image_shape'], mask_threshold= ((100, 255),))
+ds_test = Dataset_SEM_SEG(csv_file=csv_test, image_shape=model_dict['image_shape'], mask_thresholds= ((100, 255),))
 dataloader_test = DataLoader(ds_test, batch_size=model_dict['batch_size'], num_workers=8, pin_memory=True)
 data_loaders.append(dataloader_test)
 
-ds_test = Dataset_SEM_SEG(csv_file=csv_test, image_shape=model_dict['image_shape'], mask_threshold= ((100, 255),))
+ds_test = Dataset_SEM_SEG(csv_file=csv_test, image_shape=model_dict['image_shape'], mask_thresholds= ((100, 255),))
 images, labels = get_dataset(ds_test)
 
 list_outputs, ensemble_outputs = predict_multi_models(model_dicts, data_loaders, mode='DP')

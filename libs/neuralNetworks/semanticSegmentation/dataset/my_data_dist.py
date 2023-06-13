@@ -1,5 +1,5 @@
 '''
-
+    get_dataset_distribution was used to setting the pos_weight parameter of cross entropy loss function.
 '''
 
 from pathlib import Path
@@ -9,8 +9,8 @@ import cv2
 
 
 
-def get_dataset_distribution(csv_file, mask_threshold=127):
-    dataset1 = Dataset_SEM_SEG(csv_file=csv_file, mask_threshold=mask_threshold)
+def get_dataset_binary_distribution(csv_file):
+    dataset1 = Dataset_SEM_SEG(csv_file=csv_file)
 
     gt_positives, gt_negatives = 0, 0
     for index, (image, mask) in enumerate(dataset1):
@@ -21,6 +21,7 @@ def get_dataset_distribution(csv_file, mask_threshold=127):
     print(gt_positives, gt_negatives, gt_negatives / gt_positives)
 
 
+'''
 def get_path_distribution(path1: Path, mask_threshold=127):
 
     gt_positives, gt_negatives = 0, 0
@@ -39,6 +40,7 @@ def get_path_distribution(path1: Path, mask_threshold=127):
 
     print(gt_positives, gt_negatives, gt_negatives / gt_positives)
 
+'''
 
 
 if __name__ == '__main__':
@@ -46,7 +48,7 @@ if __name__ == '__main__':
     for task_type in ['cyto_clumps', 'cyto_ins', 'nuc_clumps', 'nuc_ins']:
 
         path_csv = Path(__file__).resolve().parents[4] / 'datafiles' / f'{task_type}' / 'train_valid.csv'
-        get_dataset_distribution(path_csv)
+        get_dataset_binary_distribution(path_csv)
 
     '''
     3.598541957809802

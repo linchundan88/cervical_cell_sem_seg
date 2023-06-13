@@ -5,7 +5,7 @@ sys.path.append(str(Path(__file__).resolve().parent))
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--CUDA_VISIBLE_DEVICES', default='0,1')
-parser.add_argument('--task_type', default='cyto_ins')   # nuc_ins cyto_ins
+parser.add_argument('--task_type', default='nuc_ins')   # nuc_ins cyto_ins
 
 args = parser.parse_args()
 import os
@@ -15,9 +15,9 @@ from libs.neuralNetworks.semanticSegmentation.models.my_get_model_helper import 
 from libs.neuralNetworks.semanticSegmentation.my_predict_helper import predict_one_file
 import cv2
 
-
-img_file_source = 'test_images/a90.jpg'
-img_file_result = f'a90_result_{args.task_type}.jpg'
+img_no = 87
+img_file_source = f'test_images/a{img_no}.jpg'
+img_file_result = f'a{img_no}_result_{args.task_type}.jpg'
 
 patch_h, patch_w = (512, 512)
 

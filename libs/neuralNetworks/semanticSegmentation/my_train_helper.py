@@ -55,7 +55,6 @@ def train_DP(config):
     for epoch in range(epochs_num):
         loss_train, tp_train, tn_train, fp_train, fn_train = _train_one_epoch(model1, loader_train, criterion, epoch, optimizer,
                                                                               scheduler, scheduler_mode, use_amp)
-
         acc_train, sen_train, spe_train, dice_train = get_metrics(tp_train, tn_train, fp_train, fn_train)
         print(f'training epoch{epoch} metrics:')
         print(f'losses:{loss_train:.3f}')
@@ -65,7 +64,6 @@ def train_DP(config):
         print(f'epoch:{epoch} compute validation dataset...')
         dataloader_valid = DataLoader(ds_valid, batch_size=batch_size, num_workers=num_workers, pin_memory=True)
         loss_valid, tp_valid, tn_valid, fp_valid, fn_valid = _validate_one_epoch(model1, dataloader_valid, criterion, use_amp=use_amp)
-
         acc_valid, sen_valid, spe_valid, dice_valid = get_metrics(tp_valid, tn_valid, fp_valid, fn_valid)
         print(f'validation metrics:')
         print(f'losses:{loss_valid:.3f}')
@@ -73,13 +71,11 @@ def train_DP(config):
         print(f'dice:{dice_valid:.3f}')
 
         list_loss_history.append([loss_train, loss_valid])
+
         save_model_file = save_model_dir / f'valid_loss_{round(loss_valid, 3)}_epoch{epoch}.pth'
-        try:
-            state_dict = model1.module.state_dict()
-        except AttributeError:
-            state_dict = model1.state_dict()
+        model_save = model1.module if isinstance(model1, nn.DataParallel) else model1
         print('save model:', save_model_file)
-        torch.save(state_dict, save_model_file)
+        torch.save(model_save.state_dict(), save_model_file)
 
     pickle.dump(list_loss_history, open(losses_pkl, 'wb'))
     clear_gpu_cache()
@@ -110,7 +106,6 @@ def _train_one_epoch(model, dataloader, criterion, epoch, optimizer, scheduler, 
         scaler.update()
 
         logging.info(f'epoch:{epoch} training batch:{batch_idx}, losses:{loss.item():3}')
-
         epoch_loss += loss.item()  # loss function setting reduction='mean'
 
         #show performance indicator during training
@@ -141,7 +136,6 @@ def _validate_one_epoch(model, dataloader, criterion, use_amp, rank=None):
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     else:
         device = torch.device('cuda', rank)  # distributed data parallel
-
     model.eval()
     valid_loss, tp_valid, tn_valid, fp_valid, fn_valid = 0, 0, 0, 0, 0
 

@@ -3,6 +3,7 @@
         it can be used for both binary classification and multi-class classification with loss function of
           BCEWithLogitsLoss and CrossEntropyLoss, respectively.
 
+    get_dataset was used for my_compute_metrics_basemodel.py.
 '''
 
 import pandas as pd
@@ -19,7 +20,7 @@ from torch.utils.data import DataLoader
 
 
 class Dataset_SEM_SEG(Dataset):
-    def __init__(self, csv_file, transform=None, image_shape=None, test_mode=False, mask_threshold=100):
+    def __init__(self, csv_file, transform=None, image_shape=None, test_mode=False, mask_thresholds=((100, 255),)):
         if isinstance(csv_file, pd.DataFrame):
             self.df = csv_file
         else:
@@ -34,11 +35,9 @@ class Dataset_SEM_SEG(Dataset):
             list_transform.extend(transform.transforms)
         if self.image_shape is not None:  # and (image.shape[:2] != self.image_shape[:2]):  # randomcrop can change the image size
             list_transform.append(A.Resize(height=self.image_shape[0], width=self.image_shape[1]))
-        self.transform = A.Compose(
-            list_transform,
-        )
+        self.transform = A.Compose(list_transform)
         self.test_mode = test_mode
-        self.mask_threshold = mask_threshold
+        self.mask_threshold = mask_thresholds
 
     def __getitem__(self, index):
         file_img = self.df.iloc[index][0]
@@ -61,8 +60,8 @@ class Dataset_SEM_SEG(Dataset):
             if self.mask_threshold is not None:
                 # pytorch (N, C, H, W), for get item, (C,H,W)
                 mask_result = np.zeros((mask.shape[0], mask.shape[1]), np.uint)
-                for i, mask_threshold in enumerate(self.mask_threshold):    # multi-class
-                    if isinstance(mask_threshold, tuple):
+                for i, mask_threshold in enumerate(self.mask_threshold):    # multi-class:= ((100, 128),(162, 255)
+                    if isinstance(mask_threshold, tuple):  # mask_threshold is a range:(100, 255)
                         tmp_mask = np.logical_and(mask > mask_threshold[0], mask <= mask_threshold[1]).astype(np.uint)
                         tmp_mask *= (i+1)
                     else:

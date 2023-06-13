@@ -5,7 +5,6 @@ opencv-python >= 4.1
 albumentations >= 0.5.2
 matplotlib >= 3.3.4
 scikit-learn >= 0.24.1
-openslide-python >= 1.1.2
 segmentation_models_pytorch >= 0.2
 # monai
 #torch-optimizer >= 0.2
@@ -27,10 +26,8 @@ self-attention-cv >= 1.2.3  # https://github.com/The-AI-Summer/self-attention-cv
 
 
 #pip install -i https://mirrors.aliyun.com/pypi/simple/   torch torchvision
-# pip install medcam
 # pip install -i https://mirrors.aliyun.com/pypi/simple/ captum pandas scikit-learn mysqlclient openpyxl xlwt  pydicom SimpleITK matplotlib  seaborn imgaug  albumentations  torchio captum pretrainedmodels tensorboard flask biopython python-docx
 # pip install torch_optimizer timm
-#pip install imagecodecs  opencv-python
 
 
 

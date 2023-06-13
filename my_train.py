@@ -57,9 +57,9 @@ if __name__ == '__main__':
     csv_train = path_csv / f'{args.task_type}' / 'train.csv'
     csv_valid = path_csv / f'{args.task_type}' / 'valid.csv'
 
-    mask_threshold = ((100, 255),)   # support multi-class, or single value threshold ((127),)
+    mask_thresholds = ((100, 255),)   # support multi-class, or single value threshold ((127),)
     # IMAGE_CYTO_INS = 128    IMAGE_CYTO_CLUMPS = 128 + 64    IMAGE_NUC_INS = 128 + 96     IMAGE_NUC_CLUMPS = 255
-    num_classes = len(mask_threshold)
+    num_classes = len(mask_thresholds)
 
     transform_train = A.Compose([
         A.HorizontalFlip(p=0.5),
@@ -75,8 +75,8 @@ if __name__ == '__main__':
         A.Resize(args.image_shape[0], args.image_shape[1]),  #(height,weight)  if random cropping patch size is different from ...
     ])
 
-    ds_train = Dataset_SEM_SEG(csv_file=csv_train, transform=transform_train, mask_threshold=mask_threshold)  #image_shape=args.image_shape,
-    ds_valid = Dataset_SEM_SEG(csv_file=csv_valid, image_shape=args.image_shape, mask_threshold=mask_threshold)
+    ds_train = Dataset_SEM_SEG(csv_file=csv_train, transform=transform_train, mask_thresholds=mask_thresholds)  #image_shape=args.image_shape,
+    ds_valid = Dataset_SEM_SEG(csv_file=csv_valid, image_shape=args.image_shape, mask_thresholds=mask_thresholds)
 
     #endregion
 
@@ -141,13 +141,13 @@ if __name__ == '__main__':
         args.lr *= n_gpus
         args.batch_size = int(args.batch_size / n_gpus)  # total batch size,  batch size per gpu
 
+    epochs_num = args.epochs_num
     optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     # optimizer = optim_plus.radam(model.parameters(), lr=0.001, weight_decay=args.weight_decay)
     # optimizer = optim_plus.Lookahead(optimizer, k=5, alpha=0.5)
     # scheduler = StepLR(optimizer, step_size=args.step_size, gamma=args.gamma)
     # scheduler = CosineAnnealingLR(optimizer, T_max=epochs_num // 4, eta_min=0)  #T_max: half of one circle
     # scheduler = GradualWarmupScheduler(optimizer, multiplier=4, total_epoch=2, after_scheduler=scheduler)
-    epochs_num = args.epochs_num
     scheduler_mode = 'epoch'
     scheduler = MultiStepLR(optimizer, milestones = [int(epochs_num * 0.4), int(epochs_num * 0.8)], gamma=0.1)
 
